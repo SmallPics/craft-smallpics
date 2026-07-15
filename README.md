@@ -16,7 +16,7 @@ composer require smallpics/craft-smallpics
 
 ## Configuration
 
-Create `config/craft-smallpics.php`.
+Create `config/smallpics.php`.
 
 ### Single Origin
 
@@ -35,7 +35,7 @@ return [
     'transformSvgs' => false,
     'transformAnimatedGifs' => false,
     'defaultParams' => [
-        'fm' => 'avif',
+        'fm' => 'avif', // Don't set a default format if you've enabled `transformAnimatedGifs`
         'q' => 65,
     ],
 ];
