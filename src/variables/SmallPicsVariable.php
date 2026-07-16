@@ -9,7 +9,6 @@ use craft\models\ImageTransform;
 use smallpics\craft\models\TransformedImage;
 use smallpics\craft\models\TransformedSrcset;
 use smallpics\craft\Plugin;
-use yii\base\InvalidConfigException;
 
 class SmallPicsVariable
 {
@@ -18,7 +17,7 @@ class SmallPicsVariable
 	 */
 	public function transformImage(Asset $image, array|string|ImageTransform $config = []): TransformedImage
 	{
-		return $this->plugin()->getTransformer()->transformImage($image, $config);
+		return Plugin::$instance->transformer->transformImage($image, $config);
 	}
 
 	/**
@@ -27,17 +26,6 @@ class SmallPicsVariable
 	 */
 	public function srcset(Asset $image, array $descriptors, array|string|ImageTransform $config = []): TransformedSrcset
 	{
-		return $this->plugin()->getTransformer()->srcset($image, $descriptors, $config);
-	}
-
-	private function plugin(): Plugin
-	{
-		$plugin = Plugin::getInstance();
-
-		if (! $plugin instanceof Plugin) {
-			throw new InvalidConfigException('Small Pics plugin is not available.');
-		}
-
-		return $plugin;
+		return Plugin::$instance->transformer->srcset($image, $descriptors, $config);
 	}
 }

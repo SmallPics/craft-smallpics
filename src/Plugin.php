@@ -18,8 +18,12 @@ use yii\base\Event;
  */
 class Plugin extends BasePlugin
 {
+	public static self $instance;
+
 	public function init(): void
 	{
+		self::$instance = $this;
+
 		parent::init();
 
 		$this->setComponents([
@@ -50,14 +54,11 @@ class Plugin extends BasePlugin
 					return;
 				}
 
-				try {
-					$event->url = (string) $this->getTransformer()->transformImage($event->sender, [
-						'transform' => $event->transform,
-						...$settings->nativeTransformsParams,
-					]);
-					$event->handled = true;
-				} catch (\Throwable) {
-				}
+				$event->url = (string) $this->transformer->transformImage($event->sender, [
+					'transform' => $event->transform ?? [],
+					...$settings->nativeTransformsParams,
+				]);
+				$event->handled = true;
 			}
 		);
 
@@ -67,42 +68,24 @@ class Plugin extends BasePlugin
 			function (DefineAssetThumbUrlEvent $event): void {
 				$settings = self::settings();
 
-				if (! $settings->transformThumbnails || $event->url !== null) {
+				if (! $settings->transformThumbnails || $event->url !== null || $event->asset->kind !== Asset::KIND_IMAGE) {
 					return;
 				}
 
-				if ($event->asset->kind !== Asset::KIND_IMAGE) {
-					return;
-				}
-
-				try {
-					$event->url = (string) $this->getTransformer()->transformImage($event->asset, [
-						'width' => $event->width,
-						'height' => $event->height,
-						'mode' => 'fit',
-						...$settings->thumbnailParams,
-					]);
-				} catch (\Throwable) {
-				}
+				$event->url = (string) $this->transformer->transformImage($event->asset, [
+					'width' => $event->width,
+					'height' => $event->height,
+					'mode' => 'fit',
+					...$settings->thumbnailParams,
+				]);
 			}
 		);
 	}
 
-	public function getTransformer(): Transformer
-	{
-		/** @var Transformer $service */
-		$service = $this->get('transformer');
-
-		return $service;
-	}
-
 	public static function settings(): Settings
 	{
-		/** @var self $instance */
-		$instance = self::getInstance();
-
 		/** @var Settings $settings */
-		$settings = $instance->getSettings();
+		$settings = self::$instance->getSettings();
 
 		return $settings;
 	}

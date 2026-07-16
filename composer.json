@@ -24,7 +24,7 @@
 	"description": "Small Pics image transformer for Craft",
 	"extra": {
 		"handle": "smallpics",
-		"name": "Craft Small Pics",
+		"name": "Small Pics",
 		"developer": "Small Pics",
 		"class": "smallpics\\craft\\Plugin"
 	},

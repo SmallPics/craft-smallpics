@@ -1,4 +1,4 @@
-# Craft Small Pics
+# Small Pics for Craft CMS
 
 Add [Small Pics](https://www.smallpics.io) transforms to image URLs in Craft CMS.
 
@@ -166,7 +166,7 @@ Craft transform keys are translated to Small Pics keys when native transforms ar
 ```php
 use smallpics\craft\Plugin;
 
-$image = Plugin::getInstance()->getTransformer()->transformImage(
+$image = Plugin::$instance->transformer->transformImage(
     $asset, 
     [
         'w' => 800,
@@ -179,7 +179,7 @@ $url = (string) $image;
 ```
 
 ```php
-$srcset = Plugin::getInstance()->getTransformer()->srcset(
+$srcset = Plugin::$instance->transformer->srcset(
     $asset, 
     [
         '1x' => ['dpr' => 1],

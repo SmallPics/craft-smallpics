@@ -6,8 +6,9 @@ use craft\base\Component;
 use craft\elements\Asset;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\ImageTransforms;
+use craft\helpers\StringHelper;
 use craft\models\ImageTransform;
-use smallpics\craft\Helper as SmallPicsHelper;
+use smallpics\craft\helpers\FileHelper;
 use smallpics\craft\models\OriginConfig;
 use smallpics\craft\models\TransformedImage;
 use smallpics\craft\models\TransformedSrcset;
@@ -80,7 +81,7 @@ class Transformer extends Component
 		$options = $this->createOptions($origin, $config);
 		$sourceUrl = $this->sourceUrl($image);
 
-		if ((SmallPicsHelper::isSvg($image) && ! $origin->transformSvgs) || (SmallPicsHelper::isAnimatedGif($image) && ! $origin->transformAnimatedGifs)) {
+		if ((FileHelper::isSvg($image) && ! $origin->transformSvgs) || (FileHelper::isAnimatedGif($image) && ! $origin->transformAnimatedGifs)) {
 			return new TransformedImage($sourceUrl, $image, $options, $config);
 		}
 
@@ -219,7 +220,7 @@ class Transformer extends Component
 			}
 
 			$optionKey = self::PARAM_OPTION_KEYS[$key] ?? $key;
-			$method = 'set' . $this->toPascalCase($optionKey);
+			$method = 'set' . StringHelper::toPascalCase($optionKey);
 
 			if (! method_exists(Options::class, $method)) {
 				continue;
@@ -364,10 +365,5 @@ class Transformer extends Component
 		$path = $parts['path'] ?? $sourceUrl;
 
 		return $path . (isset($parts['query']) ? '?' . $parts['query'] : '');
-	}
-
-	private function toPascalCase(string $input): string
-	{
-		return ucfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
 	}
 }

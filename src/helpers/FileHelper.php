@@ -1,11 +1,11 @@
 <?php
 
-namespace smallpics\craft;
+namespace smallpics\craft\helpers;
 
 use craft\elements\Asset;
 use Throwable;
 
-class Helper
+class FileHelper
 {
 	public static function isSvg(Asset $image): bool
 	{
