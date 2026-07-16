@@ -6,7 +6,6 @@ use craft\base\Component;
 use craft\elements\Asset;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\ImageTransforms;
-use craft\helpers\StringHelper;
 use craft\models\ImageTransform;
 use smallpics\craft\helpers\FileHelper;
 use smallpics\craft\models\OriginConfig;
@@ -215,21 +214,7 @@ class Transformer extends Component
 		$optionsConfig = [];
 
 		foreach ($config as $key => $value) {
-			if ($value === null) {
-				continue;
-			}
-
 			$optionKey = self::PARAM_OPTION_KEYS[$key] ?? $key;
-			$method = 'set' . StringHelper::toPascalCase($optionKey);
-
-			if (! method_exists(Options::class, $method)) {
-				continue;
-			}
-
-			if ($method === 'setParam') {
-				continue;
-			}
-
 			$optionsConfig[$optionKey] = $value;
 		}
 
