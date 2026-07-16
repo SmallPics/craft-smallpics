@@ -1,3 +1,5 @@
+![header.svg](assets/header.svg)
+
 # Small Pics for Craft CMS
 
 Add [Small Pics](https://www.smallpics.io) transforms to image URLs in Craft CMS.
