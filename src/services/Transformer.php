@@ -36,41 +36,6 @@ class Transformer extends Component
 	];
 
 	/**
-	 * @var array<string, string>
-	 */
-	private const PARAM_OPTION_KEYS = [
-		Options::ORIENTATION => 'orientation',
-		Options::FLIP => 'flip',
-		Options::CROP => 'crop',
-		Options::WIDTH => 'width',
-		Options::HEIGHT => 'height',
-		Options::FIT => 'fit',
-		Options::DEVICE_PIXEL_RATIO => 'devicePixelRatio',
-		Options::BRIGHTNESS => 'brightness',
-		Options::CONTRAST => 'contrast',
-		Options::GAMMA => 'gamma',
-		Options::SHARPEN => 'sharpen',
-		Options::BLUR => 'blur',
-		Options::PIXELATE => 'pixelate',
-		Options::FILTER => 'filter',
-		Options::WATERMARK_PATH => 'watermarkPath',
-		Options::WATERMARK_ORIGIN => 'watermarkOrigin',
-		Options::WATERMARK_WIDTH => 'watermarkWidth',
-		Options::WATERMARK_HEIGHT => 'watermarkHeight',
-		Options::WATERMARK_FIT => 'watermarkFit',
-		Options::WATERMARK_X_OFFSET => 'watermarkXOffset',
-		Options::WATERMARK_Y_OFFSET => 'watermarkYOffset',
-		Options::WATERMARK_PADDING => 'watermarkPadding',
-		Options::WATERMARK_POSITION => 'watermarkPosition',
-		Options::WATERMARK_ALPHA => 'watermarkAlpha',
-		Options::BACKGROUND => 'background',
-		Options::BORDER => 'border',
-		Options::QUALITY => 'quality',
-		Options::FORMAT => 'format',
-		Options::INTERLACE => 'interlaced',
-	];
-
-	/**
 	 * @param array<string, mixed>|string|ImageTransform $config
 	 */
 	public function transformImage(Asset $image, array|string|ImageTransform $config = []): TransformedImage
@@ -214,7 +179,7 @@ class Transformer extends Component
 		$optionsConfig = [];
 
 		foreach ($config as $key => $value) {
-			$optionKey = self::PARAM_OPTION_KEYS[$key] ?? $key;
+			$optionKey = Options::allOptions()[$key] ?? $key;
 			$optionsConfig[$optionKey] = $value;
 		}
 
@@ -267,7 +232,7 @@ class Transformer extends Component
 		$normalized = [];
 
 		foreach ($config as $key => $value) {
-			$normalized[self::PARAM_OPTION_KEYS[$key] ?? $key] = $value;
+			$normalized[Options::allOptions()[$key] ?? $key] = $value;
 		}
 
 		return $normalized;
