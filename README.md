@@ -99,6 +99,19 @@ return [
 ];
 ```
 
+### Native Transform Key Mapping
+
+Craft transform keys are translated to Small Pics keys when native transforms are intercepted:
+
+| Craft key  | Small Pics param        |
+|------------|-------------------------|
+| `width`    | `w`                     |
+| `height`   | `h`                     |
+| `quality`  | `q`                     |
+| `mode`     | `fit`                   |
+| `position` | cover position in `fit` |
+| `fill`     | `bg`                    |
+
 ## Twig
 
 `transformImage()` returns a `TransformedImage`. Rendering it as a string outputs the URL.
@@ -150,18 +163,69 @@ Select an origin with `origin`.
 
 ## Transform Options
 
-See the [Small Pics docs](https://www.smallpics.io/docs) for the full list of supported transform parameters.
+Transform options can use either the Small Pics URL param key or the option name used by `smallpics/smallpics-php`. For example, `q` and `quality` are equivalent.
 
-Craft transform keys are translated to Small Pics keys when native transforms are intercepted:
+Internally, the plugin normalizes URL param keys before creating `smallpics\smallpics\Options`. That means `q` becomes `quality`, then the underlying package calls `setQuality()`.
 
-| Craft key  | Small Pics param        |
-|------------|-------------------------|
-| `width`    | `w`                     |
-| `height`   | `h`                     |
-| `quality`  | `q`                     |
-| `mode`     | `fit`                   |
-| `position` | cover position in `fit` |
-| `fill`     | `bg`                    |
+The examples below use PHP array syntax. Use the equivalent object or array syntax in Twig templates.
+
+Use a single value for setters that take one argument:
+
+```php
+[
+    'w' => 800,
+    'q' => 80,
+    'fm' => 'webp',
+]
+```
+
+Use an array for setters that take multiple arguments. Array values are spread into the underlying setter in order:
+
+```php
+[
+    'crop' => [400, 300, 10, 20],
+    'ar' => [16, 9],
+    'border' => [8, 'ffffff', 'pad'],
+    'fit' => ['cover', 'cover-top'],
+]
+```
+
+| Param key | Option name | Value | Example                            | Setter |
+|-----------|-------------|-------|------------------------------------|--------|
+| `or` | `orientation` | `0`, `90`, `180`, `270`, or `auto` | `'or' => 'auto'`                   | `setOrientation()` |
+| `flip` | `flip` | `v`, `h`, or `both` | `'flip' => 'h'`                    | `setFlip()` |
+| `crop` | `crop` | `[width, height, x, y]` | `'crop' => [400, 300, 10, 20]`     | `setCrop()` |
+| `w` | `width` | Integer width | `'w' => 800`                       | `setWidth()` |
+| `h` | `height` | Integer height | `'h' => 600`                       | `setHeight()` |
+| `ar` | `aspectRatio` | Ratio number, or `[dividend, divisor]` | `ar => 1.778` or `'ar' => [16, 9]` | `setAspectRatio()` |
+| `fit` | `fit` | `contain`, `max`, `fill`, `fill-max`, `stretch`, `cover`, `crop`, or `[fit, cropPosition, focalPointX, focalPointY, zoom]` | `'fit' => ['cover', 'cover-top']`  | `setFit()` |
+| `dpr` | `devicePixelRatio` | Integer device pixel ratio | `'dpr' => 2`                       | `setDevicePixelRatio()` |
+| `bri` | `brightness` | Integer brightness | `'bri' => 10`                      | `setBrightness()` |
+| `con` | `contrast` | Integer contrast | `'con' => 15`                      | `setContrast()` |
+| `gam` | `gamma` | Float gamma | `'gam' => 1.2`                     | `setGamma()` |
+| `sharp` | `sharpen` | Integer sharpen amount | `'sharp' => 20`                    | `setSharpen()` |
+| `blur` | `blur` | Integer blur amount | `'blur' => 5`                      | `setBlur()` |
+| `pixel` | `pixelate` | Integer pixelate amount | `'pixel' => 8`                     | `setPixelate()` |
+| `filt` | `filter` | `grayscale` or `sepia` | `'filt' => 'grayscale'`            | `setFilter()` |
+| `mark` | `watermarkPath` | Watermark image path | `'mark' => '/watermark.png'`       | `setWatermarkPath()` |
+| `markorigin` | `watermarkOrigin` | Watermark origin name | `'markorigin' => 'default'`        | `setWatermarkOrigin()` |
+| `markw` | `watermarkWidth` | Integer width or relative width string | `'markw' => 120`                   | `setWatermarkWidth()` |
+| `markh` | `watermarkHeight` | Integer height or relative height string | `'markh' => 80`                    | `setWatermarkHeight()` |
+| `markfit` | `watermarkFit` | Same shape as `fit` | `'markfit' => 'contain'`           | `setWatermarkFit()` |
+| `markx` | `watermarkXOffset` | Integer offset or relative offset string | `'markx' => 20`                    | `setWatermarkXOffset()` |
+| `marky` | `watermarkYOffset` | Integer offset or relative offset string | `'marky' => 20`                    | `setWatermarkYOffset()` |
+| `markpad` | `watermarkPadding` | Integer padding or relative padding string | `'markpad' => 16`                  | `setWatermarkPadding()` |
+| `markpos` | `watermarkPosition` | `top-left`, `top`, `top-right`, `left`, `center`, `right`, `bottom-left`, `bottom`, or `bottom-right` | `'markpos' => 'bottom-right'`      | `setWatermarkPosition()` |
+| `markalpha` | `watermarkAlpha` | Integer alpha | `'markalpha' => 80`                | `setWatermarkAlpha()` |
+| `bg` | `background` | Background color string | `'bg' => 'ffffff'`                 | `setBackground()` |
+| `border` | `border` | `[width, color, method]`, where method is `overlay`, `shrink`, or `pad` | `'border' => [8, 'ffffff', 'pad']` | `setBorder()` |
+| `q` | `quality` | Integer quality | `'q' => 80`                        | `setQuality()` |
+| `fm` | `format` | `jpg`, `pjpg`, `png`, `gif`, `webp`, or `avif` | `'fm' => 'webp'`                   | `setFormat()` |
+| `interlace` | `interlaced` | Boolean | `'interlace' => true`              | `setInterlaced()` |
+
+Cover crop positions for `fit` and `markfit` are `cover-top-left`, `cover-top`, `cover-top-right`, `cover-left`, `cover-center`, `cover-right`, `cover-bottom-left`, `cover-bottom`, and `cover-bottom-right`.
+
+For focal-point crops, pass `null` for the crop position argument: `'fit' => ['crop', null, 50, 50]` or `'fit' => ['crop', null, 50, 50, 2]`.
 
 ## PHP
 
