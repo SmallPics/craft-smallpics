@@ -19,7 +19,7 @@ class Settings extends Model
 	/**
 	 * Whether Craft thumbnail URLs should use Small Pics.
 	 */
-	public bool $transformThumbnails = false;
+	public bool $transformThumbnails = true;
 
 	/**
 	 * Parameters to apply to thumbnail transforms.
