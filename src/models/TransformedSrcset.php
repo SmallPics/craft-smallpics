@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace smallpics\craft\models;
 
+use ArrayAccess;
+use IteratorAggregate;
+use LogicException;
 use Stringable;
+use Traversable;
 
-class TransformedSrcset implements Stringable
+/**
+ * @implements ArrayAccess<string, TransformedImage>
+ * @implements IteratorAggregate<string, TransformedImage>
+ */
+class TransformedSrcset implements ArrayAccess, IteratorAggregate, Stringable
 {
 	/**
 	 * @param array<string, TransformedImage> $images
@@ -25,6 +33,34 @@ class TransformedSrcset implements Stringable
 		}
 
 		return implode(', ', $parts);
+	}
+
+	public function offsetExists(mixed $offset): bool
+	{
+		return array_key_exists((string) $offset, $this->images);
+	}
+
+	public function offsetGet(mixed $offset): ?TransformedImage
+	{
+		return $this->images[(string) $offset] ?? null;
+	}
+
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
+		throw new LogicException(self::class . ' is read-only.');
+	}
+
+	public function offsetUnset(mixed $offset): void
+	{
+		throw new LogicException(self::class . ' is read-only.');
+	}
+
+	/**
+	 * @return Traversable<string, TransformedImage>
+	 */
+	public function getIterator(): Traversable
+	{
+		yield from $this->images;
 	}
 
 	/**
