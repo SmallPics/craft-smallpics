@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 	// 'transformNativeImages' => true,
 	// 'transformThumbnails' => true,
