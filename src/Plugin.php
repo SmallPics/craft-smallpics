@@ -46,7 +46,7 @@ class Plugin extends BasePlugin
 			function (DefineAssetUrlEvent $event): void {
 				$settings = self::settings();
 
-				if (! $settings->transformNativeImages || $settings->origins === [] || $event->transform === null || $event->url !== null || $event->handled) {
+				if (! $settings->transformNativeImages || $settings->sources === [] || $event->transform === null || $event->url !== null || $event->handled) {
 					return;
 				}
 
@@ -68,7 +68,7 @@ class Plugin extends BasePlugin
 			function (DefineAssetThumbUrlEvent $event): void {
 				$settings = self::settings();
 
-				if (! $settings->transformThumbnails || $settings->origins === [] || $event->url !== null || $event->asset->kind !== Asset::KIND_IMAGE) {
+				if (! $settings->transformThumbnails || $settings->sources === [] || $event->url !== null || $event->asset->kind !== Asset::KIND_IMAGE) {
 					return;
 				}
 

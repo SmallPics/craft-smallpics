@@ -8,7 +8,7 @@ use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\ImageTransforms;
 use craft\models\ImageTransform;
 use smallpics\craft\helpers\FileHelper;
-use smallpics\craft\models\OriginConfig;
+use smallpics\craft\models\SourceConfig;
 use smallpics\craft\models\TransformedImage;
 use smallpics\craft\models\TransformedSrcset;
 use smallpics\craft\Plugin;
@@ -41,20 +41,20 @@ class Transformer extends Component
 	public function transformImage(Asset $image, array|string|ImageTransform $config = []): TransformedImage
 	{
 		$config = $this->normalizeTransformConfig($config);
-		[$origin, $config] = $this->resolveOrigin($config);
-		$options = $this->createOptions($origin, $config);
+		[$source, $config] = $this->resolveSource($config);
+		$options = $this->createOptions($source, $config);
 		$sourceUrl = $this->sourceUrl($image);
 
-		if ((FileHelper::isSvg($image) && ! $origin->transformSvgs) || (FileHelper::isAnimatedGif($image) && ! $origin->transformAnimatedGifs)) {
+		if ((FileHelper::isSvg($image) && ! $source->transformSvgs) || (FileHelper::isAnimatedGif($image) && ! $source->transformAnimatedGifs)) {
 			return new TransformedImage($sourceUrl, $image, $options, $config);
 		}
 
-		if ($origin->baseUrl === null || $origin->baseUrl === '') {
+		if ($source->baseUrl === null || $source->baseUrl === '') {
 			throw new InvalidConfigException('Small Pics baseUrl is missing.');
 		}
 
 		return new TransformedImage(
-			(new UrlBuilder($origin->baseUrl, $origin->secret))->buildUrl($this->sourcePath($sourceUrl), $options),
+			(new UrlBuilder($source->baseUrl, $source->secret))->buildUrl($this->sourcePath($sourceUrl), $options),
 			$image,
 			$options,
 			$config,
@@ -133,44 +133,47 @@ class Transformer extends Component
 
 	/**
 	 * @param array<string, mixed> $config
-	 * @return array{OriginConfig, array<string, mixed>}
+	 * @return array{SourceConfig, array<string, mixed>}
 	 */
-	private function resolveOrigin(array $config): array
+	private function resolveSource(array $config): array
 	{
 		$settings = Plugin::settings();
-		$originName = $settings->defaultOrigin;
+		$sourceName = $settings->defaultSource;
 
-		if (isset($config['origin']) && is_scalar($config['origin'])) {
-			$originName = (string) $config['origin'];
+		if (isset($config['source']) && is_scalar($config['source'])) {
+			$sourceName = (string) $config['source'];
+		} elseif (isset($config['origin']) && is_scalar($config['origin'])) {
+			$sourceName = (string) $config['origin'];
 		}
 
+		unset($config['source']);
 		unset($config['origin']);
 
-		if ($settings->origins === []) {
+		if ($settings->sources === []) {
 			throw new InvalidConfigException('Small Pics is missing required config.');
 		}
 
-		if (! isset($settings->origins[$originName])) {
-			throw new InvalidConfigException("Unknown Small Pics origin '{$originName}'.");
+		if (! isset($settings->sources[$sourceName])) {
+			throw new InvalidConfigException("Unknown Small Pics source '{$sourceName}'.");
 		}
 
-		$origin = $settings->origins[$originName];
+		$source = $settings->sources[$sourceName];
 
-		if (! $origin->baseUrl) {
-			throw new InvalidConfigException("Small Pics baseUrl is missing for origin '{$originName}'.");
+		if (! $source->baseUrl) {
+			throw new InvalidConfigException("Small Pics baseUrl is missing for source '{$sourceName}'.");
 		}
 
-		return [$origin, $config];
+		return [$source, $config];
 	}
 
 	/**
 	 * @param array<string, mixed> $config
 	 */
-	private function createOptions(OriginConfig $origin, array $config): Options
+	private function createOptions(SourceConfig $source, array $config): Options
 	{
 		$config = [
 			...Plugin::settings()->defaultParams,
-			...$origin->defaultParams,
+			...$source->defaultParams,
 			...$config,
 		];
 

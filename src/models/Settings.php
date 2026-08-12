@@ -9,7 +9,12 @@ class Settings extends Model
 	/**
 	 * @var string
 	 */
-	public const DEFAULT_ORIGIN_NAME = 'default';
+	public const DEFAULT_SOURCE_NAME = 'default';
+
+	/**
+	 * @deprecated Use `DEFAULT_SOURCE_NAME` instead. Will be removed in the next major release.
+	 */
+	public const DEFAULT_ORIGIN_NAME = self::DEFAULT_SOURCE_NAME;
 
 	/**
 	 * Whether Craft's native image transforms should use Small Pics.
@@ -24,7 +29,7 @@ class Settings extends Model
 	/**
 	 * Parameters to apply to thumbnail transforms.
 	 *
-	 * These are applied after global and origin defaults.
+	 * These are applied after global and source defaults.
 	 *
 	 * @var array<string, mixed>
 	 */
@@ -33,39 +38,44 @@ class Settings extends Model
 	/**
 	 * Parameters to apply to native Craft image transforms.
 	 *
-	 * These are applied after global and origin defaults.
+	 * These are applied after global and source defaults.
 	 *
 	 * @var array<string, mixed>
 	 */
 	public array $nativeTransformsParams = [];
 
 	/**
-	 * Name of the default origin to use when none is specified.
+	 * Name of the default source to use when none is specified.
 	 */
-	public string $defaultOrigin = self::DEFAULT_ORIGIN_NAME;
+	public string $defaultSource = self::DEFAULT_SOURCE_NAME;
 
 	/**
-	 * Root-level single-origin config.
+	 * @deprecated Use `defaultSource` instead. Will be removed in the next major release.
+	 */
+	public string $defaultOrigin = self::DEFAULT_SOURCE_NAME;
+
+	/**
+	 * Root-level single-source config.
 	 */
 	public ?string $baseUrl = null;
 
 	/**
-	 * Root-level single-origin signing secret.
+	 * Root-level single-source signing secret.
 	 */
 	public ?string $secret = null;
 
 	/**
-	 * Root-level single-origin SVG setting.
+	 * Root-level single-source SVG setting.
 	 */
 	public bool $transformSvgs = false;
 
 	/**
-	 * Root-level single-origin animated GIF setting.
+	 * Root-level single-source animated GIF setting.
 	 */
 	public bool $transformAnimatedGifs = true;
 
 	/**
-	 * Map of origins.
+	 * Map of sources.
 	 *
 	 * Example:
 	 *
@@ -86,13 +96,19 @@ class Settings extends Model
 	 *     ],
 	 * ]
 	 *
-	 * @var array<string, OriginConfig>
+	 * @var array<string, SourceConfig>
+	 */
+	public array $sources = [];
+
+	/**
+	 * @deprecated Use `sources` instead. Will be removed in the next major release.
+	 * @var array<string, SourceConfig>
 	 */
 	public array $origins = [];
 
 	/**
 	 * Global default parameters for Small Pics transformations.
-	 * These are applied in addition to any per origin defaults.
+	 * These are applied in addition to any per-source defaults.
 	 *
 	 * @var array<string, mixed>
 	 */
@@ -104,14 +120,18 @@ class Settings extends Model
 	 */
 	public function setAttributes($values, $safeOnly = true): void
 	{
-		if (! isset($values['origins']) || ! is_array($values['origins'])) {
-			$values['origins'] = [];
+		if (! isset($values['sources']) || ! is_array($values['sources'])) {
+			$values['sources'] = isset($values['origins']) && is_array($values['origins']) ? $values['origins'] : [];
 		}
 
-		$origins = $values['origins'];
+		if (! array_key_exists('defaultSource', $values) && isset($values['defaultOrigin']) && is_scalar($values['defaultOrigin'])) {
+			$values['defaultSource'] = (string) $values['defaultOrigin'];
+		}
 
-		if ($origins === [] && ! empty($values['baseUrl'])) {
-			$origins[self::DEFAULT_ORIGIN_NAME] = new OriginConfig([
+		$sources = $values['sources'];
+
+		if ($sources === [] && ! empty($values['baseUrl'])) {
+			$sources[self::DEFAULT_SOURCE_NAME] = new SourceConfig([
 				'baseUrl' => $values['baseUrl'],
 				'secret' => $values['secret'] ?? null,
 				'transformSvgs' => $values['transformSvgs'] ?? false,
@@ -119,17 +139,19 @@ class Settings extends Model
 			]);
 		}
 
-		foreach ($origins as $key => $originConfig) {
-			if (is_array($originConfig)) {
-				$origins[(string) $key] = new OriginConfig($originConfig);
+		foreach ($sources as $key => $sourceConfig) {
+			if (is_array($sourceConfig)) {
+				$sources[(string) $key] = new SourceConfig($sourceConfig);
 			}
 		}
 
-		if (! array_key_exists('defaultOrigin', $values) && $origins !== []) {
-			$values['defaultOrigin'] = (string) array_key_first($origins);
+		if (! array_key_exists('defaultSource', $values) && $sources !== []) {
+			$values['defaultSource'] = (string) array_key_first($sources);
 		}
 
-		$values['origins'] = $origins;
+		$values['sources'] = $sources;
+		$values['origins'] = $sources;
+		$values['defaultOrigin'] = $values['defaultSource'] ?? self::DEFAULT_SOURCE_NAME;
 
 		parent::setAttributes($values, $safeOnly);
 	}

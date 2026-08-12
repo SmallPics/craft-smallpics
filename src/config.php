@@ -5,11 +5,11 @@ return [
 	// 'transformThumbnails' => true,
 	// 'thumbnailParams' => [],
 	// 'nativeTransformsParams' => [],
-	// 'defaultOrigin' => 'default',
+	// 'defaultSource' => 'default',
 	'baseUrl' => getenv('SMALLPICS_BASE_URL'),
 	'secret' => getenv('SMALLPICS_SECRET') ?: null,
 	// 'transformSvgs' => false,
 	// 'transformAnimatedGifs' => true,
-	// 'origins' => [],
+	// 'sources' => [],
 	// 'defaultParams' => [],
 ];
