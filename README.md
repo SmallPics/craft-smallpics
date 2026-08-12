@@ -31,19 +31,19 @@ A source `baseUrl` is required.
 
 ### Configuration parameters
 
-| Parameter | Type | Required | Default | Description                                                                                                                                      |
-|-----------|------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `baseUrl` | String | Yes | _None_ | Small Pics base URL for the default single source. Required when `sources` is empty. |
-| `transformNativeImages` | Boolean | No | `true` | Use Small Pics for Craft's native image transforms.                                                                                              |
-| `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs.                                                                                                         |
-| `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails after global and source defaults. |
-| `nativeTransformsParams` | Array | No | `[]` | Transform parameters applied to native Craft transforms after global and source defaults. |
-| `defaultSource` | String | No | `'default'` | Source to use when a transform does not specify one. If omitted when `sources` is set, the first source is the default. |
-| `secret` | String or `null` | No | `null` | Signing secret for the default single source. Required if signed requests are enabled for your image source in Small Pics. |
-| `transformSvgs` | Boolean | No | `false` | Transform SVGs for the default single source. |
-| `transformAnimatedGifs` | Boolean | No | `true` | Transform animated GIFs for the default single source. |
-| `sources` | Array | No | `[]` | See [Source configuration](#source-configuration). |
-| `defaultParams` | Array | No | `[]` | Transform parameters applied to every request before source and per-transform parameters. |
+| Parameter | Type | Required | Default | Description                                                                                                                    |
+|-----------|------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------|
+| `transformNativeImages` | Boolean | No | `true` | Use Small Pics for Craft's native image transforms.                                                                            |
+| `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs.                                                                                       |
+| `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails after global and source defaults.                                                   |
+| `nativeTransformsParams` | Array | No | `[]` | Transform parameters applied to native Craft transforms after global and source defaults.                                      |
+| `defaultSource` | String | No | `'default'` | Source to use when a transform does not specify one. If omitted when `sources` is set, the first source is the default.        |
+| `baseUrl` | String | Yes | _None_ | Small Pics base URL for the default single source. **Required when `sources` is empty.**                                       |
+| `secret` | String or `null` | No | `null` | Signing secret for the default single source. **Required if signed requests are enabled for your image source in Small Pics.** |
+| `transformSvgs` | Boolean | No | `false` | Transform SVGs for the default single source.                                                                                  |
+| `transformAnimatedGifs` | Boolean | No | `true` | Transform animated GIFs for the default single source.                                                                         |
+| `sources` | Array | No | `[]` | See [Source configuration](#source-configuration).                                                                             |
+| `defaultParams` | Array | No | `[]` | Transform parameters applied to every request before source and per-transform parameters.                                      |
 
 ### Source configuration
 
