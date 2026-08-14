@@ -25,7 +25,7 @@ ddev craft plugin/install smallpics
 
 ## Configuration
 
-Create `config/smallpics.php`.
+Create `config/smallpics.php` in the root of your project, or copy and rename [config.php](src/config.php).
 
 A source `baseUrl` is required.
 
