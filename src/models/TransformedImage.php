@@ -11,7 +11,7 @@ use Stringable;
 
 class TransformedImage implements Stringable
 {
-	public const DEFAULT_MIME_TYPE = 'application/octet-stream';
+	public const DEFAULT_MIME_TYPE = 'image/avif';
 
 	/**
 	 * @param array<string, mixed> $config
@@ -49,17 +49,20 @@ class TransformedImage implements Stringable
 		$format = $this->options->getFormat();
 
 		if (! $format instanceof Format) {
-			return $this->asset->getMimeType() ?? self::DEFAULT_MIME_TYPE;
+			// Small Pics transformer will also use the Accept header to determine a response format, but
+			// this plugin will never see what the actual response format is, so this is based on the Small
+			// Pics default response format.
+			return self::DEFAULT_MIME_TYPE;
 		}
 
-		return [
+		return match ($format->value) {
 			'jpg' => 'image/jpeg',
-			'pjpg' => 'image/jpeg',
 			'png' => 'image/png',
 			'gif' => 'image/gif',
 			'webp' => 'image/webp',
-			'avif' => 'image/avif',
-		][$format->value];
+			'jxl' => 'image/jxl',
+			default => self::DEFAULT_MIME_TYPE,
+		};
 	}
 
 	public function getSource(): Asset
