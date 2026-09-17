@@ -43,9 +43,13 @@ class Transformer extends Component
 		$config = $this->normalizeTransformConfig($config);
 		[$source, $config] = $this->resolveSource($config);
 		$options = $this->createOptions($source, $config);
+		if (! $source->transformSvgs) {
+			$options->setPassthrough(true);
+		}
+
 		$sourceUrl = $this->sourceUrl($image);
 
-		if ((FileHelper::isSvg($image) && ! $source->transformSvgs) || (FileHelper::isAnimatedGif($image) && ! $source->transformAnimatedGifs)) {
+		if (FileHelper::isAnimatedGif($image) && ! $source->transformAnimatedGifs) {
 			return new TransformedImage($sourceUrl, $image, $options, $config);
 		}
 
@@ -142,12 +146,9 @@ class Transformer extends Component
 
 		if (isset($config['source']) && is_scalar($config['source'])) {
 			$sourceName = (string) $config['source'];
-		} elseif (isset($config['origin']) && is_scalar($config['origin'])) {
-			$sourceName = (string) $config['origin'];
 		}
 
 		unset($config['source']);
-		unset($config['origin']);
 
 		if ($settings->sources === []) {
 			throw new InvalidConfigException('Small Pics is missing required config.');
@@ -172,9 +173,9 @@ class Transformer extends Component
 	private function createOptions(SourceConfig $source, array $config): Options
 	{
 		$config = [
-			...Plugin::settings()->defaultParams,
-			...$source->defaultParams,
-			...$config,
+			...$this->normalizeOptionKeys(Plugin::settings()->defaultParams),
+			...$this->normalizeOptionKeys($source->defaultParams),
+			...$this->normalizeOptionKeys($config),
 		];
 
 		$config = $this->normalizeSmallPicsConfig($this->normalizeOptionKeys($config));
@@ -195,14 +196,22 @@ class Transformer extends Component
 	 */
 	private function normalizeSmallPicsConfig(array $config): array
 	{
-		foreach (['width', 'height', 'quality'] as $key) {
+		foreach (['width', 'height'] as $key) {
 			if (isset($config[$key])) {
 				$config[$key] = $this->dimensionValue($config[$key]);
 			}
 		}
 
 		if (isset($config['mode']) && is_scalar($config['mode']) && ! isset($config['fit'])) {
-			$config['fit'] = $this->fitValue((string) $config['mode'], $config['position'] ?? null);
+			$config['fit'] = $this->fitValue((string) $config['mode']);
+		}
+
+		if (isset($config['quality']) && is_scalar($config['quality'])) {
+			$config['quality'] = (int) $config['quality'];
+		}
+
+		if (in_array($config['fit'] ?? null, ['crop', Fit::CROP], true) && ! isset($config['crop']) && is_string($config['position'] ?? null)) {
+			$config['crop'] = self::NATIVE_POSITION_MAP[$config['position']] ?? $config['position'];
 		}
 
 		if (isset($config['fill']) && ! isset($config['background'])) {
@@ -241,41 +250,25 @@ class Transformer extends Component
 		return $normalized;
 	}
 
-	/**
-	 * @return string|array{0: string, 1: string}
-	 */
-	private function fitValue(string $mode, mixed $position): string|array
+	private function fitValue(string $mode): string
 	{
 		return match ($mode) {
 			'fit' => Fit::CONTAIN->value,
 			'stretch' => Fit::STRETCH->value,
 			'letterbox' => Fit::FILL->value,
-			'crop' => $this->coverFitValue($position),
+			'crop' => Fit::CROP->value,
 			default => $mode,
 		};
 	}
 
-	/**
-	 * @return string|array{0: string, 1: string}
-	 */
-	private function coverFitValue(mixed $position): string|array
-	{
-		if (! is_scalar($position)) {
-			return Fit::COVER->value;
-		}
-
-		$cropPosition = self::NATIVE_POSITION_MAP[(string) $position] ?? null;
-
-		return $cropPosition ? [Fit::COVER->value, $cropPosition->value] : Fit::COVER->value;
-	}
-
-	private function dimensionValue(mixed $value): int
+	private function dimensionValue(mixed $value): int|float|string
 	{
 		if (! is_scalar($value)) {
 			return 0;
 		}
 
-		return (int) preg_replace('/px$/', '', trim((string) $value));
+		$value = (string) preg_replace('/px$/', '', trim((string) $value));
+		return is_numeric($value) ? $value + 0 : $value;
 	}
 
 	/**

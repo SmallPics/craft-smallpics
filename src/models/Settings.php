@@ -12,11 +12,6 @@ class Settings extends Model
 	public const DEFAULT_SOURCE_NAME = 'default';
 
 	/**
-	 * @deprecated Use `DEFAULT_SOURCE_NAME` instead. Will be removed in the next major release.
-	 */
-	public const DEFAULT_ORIGIN_NAME = self::DEFAULT_SOURCE_NAME;
-
-	/**
 	 * Whether Craft's native image transforms should use Small Pics.
 	 */
 	public bool $transformNativeImages = true;
@@ -48,11 +43,6 @@ class Settings extends Model
 	 * Name of the default source to use when none is specified.
 	 */
 	public string $defaultSource = self::DEFAULT_SOURCE_NAME;
-
-	/**
-	 * @deprecated Use `defaultSource` instead. Will be removed in the next major release.
-	 */
-	public string $defaultOrigin = self::DEFAULT_SOURCE_NAME;
 
 	/**
 	 * Root-level single-source config.
@@ -101,12 +91,6 @@ class Settings extends Model
 	public array $sources = [];
 
 	/**
-	 * @deprecated Use `sources` instead. Will be removed in the next major release.
-	 * @var array<string, SourceConfig>
-	 */
-	public array $origins = [];
-
-	/**
 	 * Global default parameters for Small Pics transformations.
 	 * These are applied in addition to any per-source defaults.
 	 *
@@ -121,12 +105,9 @@ class Settings extends Model
 	public function setAttributes($values, $safeOnly = true): void
 	{
 		if (! isset($values['sources']) || ! is_array($values['sources'])) {
-			$values['sources'] = isset($values['origins']) && is_array($values['origins']) ? $values['origins'] : [];
+			$values['sources'] = [];
 		}
 
-		if (! array_key_exists('defaultSource', $values) && isset($values['defaultOrigin']) && is_scalar($values['defaultOrigin'])) {
-			$values['defaultSource'] = (string) $values['defaultOrigin'];
-		}
 
 		$sources = $values['sources'];
 
@@ -135,7 +116,7 @@ class Settings extends Model
 				'baseUrl' => $values['baseUrl'],
 				'secret' => $values['secret'] ?? null,
 				'transformSvgs' => $values['transformSvgs'] ?? false,
-				'transformAnimatedGifs' => $values['transformAnimatedGifs'] ?? false,
+				'transformAnimatedGifs' => $values['transformAnimatedGifs'] ?? true,
 			]);
 		}
 
@@ -150,8 +131,6 @@ class Settings extends Model
 		}
 
 		$values['sources'] = $sources;
-		$values['origins'] = $sources;
-		$values['defaultOrigin'] = $values['defaultSource'] ?? self::DEFAULT_SOURCE_NAME;
 
 		parent::setAttributes($values, $safeOnly);
 	}

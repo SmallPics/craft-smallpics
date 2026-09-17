@@ -36,12 +36,12 @@ class TransformedImage implements Stringable
 
 	public function getWidth(): int
 	{
-		return $this->options->getWidth() ?? 0;
+		return $this->dimension($this->options->getParam(Options::WIDTH), 'width');
 	}
 
 	public function getHeight(): int
 	{
-		return $this->options->getHeight() ?? 0;
+		return $this->dimension($this->options->getParam(Options::HEIGHT), 'height');
 	}
 
 	public function getMimeType(): string
@@ -56,7 +56,7 @@ class TransformedImage implements Stringable
 		}
 
 		return match ($format->value) {
-			'jpg' => 'image/jpeg',
+			'jpg', 'pjpg' => 'image/jpeg',
 			'png' => 'image/png',
 			'gif' => 'image/gif',
 			'webp' => 'image/webp',
@@ -81,5 +81,16 @@ class TransformedImage implements Stringable
 	public function getOptions(): Options
 	{
 		return $this->options;
+	}
+
+	private function dimension(int|float|string|null $value, string $axis): int
+	{
+		if (is_string($value) && preg_match('/^([\d.]+)([pwh])$/', $value, $matches)) {
+			$width = $matches[2] === 'w' || ($matches[2] === 'p' && $axis === 'width');
+			$base = $width ? $this->asset->getWidth() : $this->asset->getHeight();
+			return (int) round((float) $matches[1] * ($base ?? 0) / 100);
+		}
+
+		return (int) ($value ?? 0);
 	}
 }

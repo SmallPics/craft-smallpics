@@ -7,11 +7,6 @@ use Throwable;
 
 class FileHelper
 {
-	public static function isSvg(Asset $image): bool
-	{
-		return self::extension($image) === 'svg';
-	}
-
 	public static function isAnimatedGif(Asset $image): bool
 	{
 		if (self::extension($image) !== 'gif') {

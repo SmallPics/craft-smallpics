@@ -4,6 +4,10 @@
 
 Add [Small Pics](https://www.smallpics.io) image CDN and transforms to Craft CMS.
 
+## Upgrading
+
+- [v1 to v2](migrating-v1-v2.md) upgrade guide
+
 ## Requirements
 
 - Craft CMS 4.5+ or 5.0+
@@ -168,7 +172,7 @@ Craft transform keys are translated to Small Pics keys when native transforms ar
 | `height`   | `h`                     |
 | `quality`  | `q`                     |
 | `mode`     | `fit`                   |
-| `position` | cover position in `fit` |
+| `position` | named anchor in `crop` |
 | `fill`     | `bg`                    |
 
 ## Twig
@@ -181,7 +185,7 @@ Craft transform keys are translated to Small Pics keys when native transforms ar
 {% set image = craft.smallpics.transformImage(asset, {
     w: 800,
     h: 600,
-    fit: 'cover',
+    fit: 'crop',
     q: 80
 }) %}
 
@@ -204,7 +208,7 @@ Both variations render:
 
 ```html
 <img
-    src="https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=600&q=80&w=800"
+    src="https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&q=80&w=800"
     width="800"
     height="600"
 >
@@ -221,7 +225,7 @@ You can also pass a named Craft transform handle as the config.
 Renders:
 
 ```html
-<img src="https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=600&w=800">
+<img src="https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800">
 ```
 
 #### Select a Source
@@ -273,7 +277,7 @@ Renders:
     {
         w: 400,
         h: 300,
-        fit: 'cover'
+        fit: 'crop'
     }
 ) }}">
 ```
@@ -282,7 +286,7 @@ Renders:
 
 ```html
 <img
-    srcset="https://my-source.smallpics.io/bird.jpg?dpr=1&fit=cover-center&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=cover-center&h=300&w=400 2x, https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=800 800w"
+    srcset="https://my-source.smallpics.io/bird.jpg?dpr=1&fit=crop&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=crop&h=300&w=400 2x, https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=800 800w"
 >
 ```
 
@@ -302,7 +306,7 @@ from the generated srcset instead of creating a separate transform.
     {
         w: 400,
         h: 300,
-        fit: 'cover'
+        fit: 'crop'
     }
 ) %}
 
@@ -317,8 +321,8 @@ Renders:
 
 ```html
 <img
-    src="https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=800"
-    srcset="https://my-source.smallpics.io/bird.jpg?dpr=1&fit=cover-center&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=cover-center&h=300&w=400 2x, https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=800 800w"
+    src="https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=800"
+    srcset="https://my-source.smallpics.io/bird.jpg?dpr=1&fit=crop&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=crop&h=300&w=400 2x, https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=800 800w"
     alt="Bird"
 >
 ```
@@ -334,7 +338,7 @@ only need the URL.
 
 All the transform options supported by the Small Pics transform API are supported by this plugin. Take a look at the [Small Pics docs](https://www.smallpics.io/docs/) for more detailed information about each parameter.
 
-Transform options can use either the Small Pics URL param key or the option name used by `smallpics/smallpics-php`. For example, `q` and `quality` are equivalent.
+Transform options can use either the Small Pics URL param key or the option name used by `smallpics/smallpics-php:^2.0.0`. For example, `q` and `quality` are equivalent.
 
 The examples below use PHP array syntax. Use the equivalent object or array syntax in Twig templates.
 
@@ -353,49 +357,63 @@ Use an array for options that accept multiple arguments:
 [
     'crop' => [400, 300, 10, 20],
     'ar' => [16, 9],
-    'border' => [8, 'ffffff', 'pad'],
-    'fit' => ['cover', 'cover-top'],
+    'border' => [8, 'ffffff', 'expand'],
+    'fit' => 'crop',
+    'fp' => '50w:0h',
 ]
 ```
 
-| Query parameter | Plugin option name  | Value                                                                                                                                                                                                                                                                                                            | Example                                                  | Setter                                                                                                                                                      |
-|-----------------|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `or`            | `orientation`       | `0`, `90`, `180`, `270`, or `auto`                                                                                                                                                                                                                                                                               | `'or' => 'auto'`                                         | `setOrientation(int\|string $orientation)`                                                                                                                  |
-| `flip`          | `flip`              | `v`, `h`, or `both`                                                                                                                                                                                                                                                                                              | `'flip' => 'h'`                                          | `setFlip(string $flip)`                                                                                                                                     |
-| `crop`          | `crop`              | `[width, height, x, y]`                                                                                                                                                                                                                                                                                          | `'crop' => [400, 300, 10, 20]`                           | `setCrop(int $width, int $height, int $x, int $y)`                                                                                                          |
-| `w`             | `width`             | Integer width                                                                                                                                                                                                                                                                                                    | `'w' => 800`                                             | `setWidth(int $width)`                                                                                                                                      |
-| `h`             | `height`            | Integer height                                                                                                                                                                                                                                                                                                   | `'h' => 600`                                             | `setHeight(int $height)`                                                                                                                                    |
-| `ar`            | `aspectRatio`       | Ratio number, or `[dividend, divisor]`                                                                                                                                                                                                                                                                           | `ar: 4 / 3`, `ar: 1.778`, or `'ar' => [16, 9]`           | `setAspectRatio(int\|float $dividend, null\|int\|float $divisor = null)`                                                                                    |
-| `fit`[^focal-point-crops] | `fit`        | `contain`, `max`, `fill`, `fill-max`, `stretch`, `cover`, or `crop`; cover crop positions: `cover-top-left`, `cover-top`, `cover-top-right`, `cover-left`, `cover-center`, `cover-right`, `cover-bottom-left`, `cover-bottom`, or `cover-bottom-right`; or `[fit, cropPosition, focalPointX, focalPointY, zoom]` | `'fit' => ['cover', 'cover-top']` | `setFit(string\|Fit $fit, null\|string\|CropPosition $cropPosition = null, ?int $focalPointX = null, ?int $focalPointY = null, ?int $zoom = null)` |
-| `dpr`           | `devicePixelRatio`  | Integer device pixel ratio                                                                                                                                                                                                                                                                                       | `'dpr' => 2`                                             | `setDevicePixelRatio(int $devicePixelRatio = 1)`                                                                                                            |
-| `bri`           | `brightness`        | Integer brightness                                                                                                                                                                                                                                                                                               | `'bri' => 10`                                            | `setBrightness(int $brightness)`                                                                                                                            |
-| `con`           | `contrast`          | Integer contrast                                                                                                                                                                                                                                                                                                 | `'con' => 15`                                            | `setContrast(int $contrast)`                                                                                                                                |
-| `gam`           | `gamma`             | Float gamma                                                                                                                                                                                                                                                                                                      | `'gam' => 1.2`                                           | `setGamma(float $gamma)`                                                                                                                                    |
-| `sharp`         | `sharpen`           | Integer sharpen amount                                                                                                                                                                                                                                                                                           | `'sharp' => 20`                                          | `setSharpen(int $sharpen)`                                                                                                                                  |
-| `blur`          | `blur`              | Integer blur amount                                                                                                                                                                                                                                                                                              | `'blur' => 5`                                            | `setBlur(int $blur)`                                                                                                                                        |
-| `pixel`         | `pixelate`          | Integer pixelate amount                                                                                                                                                                                                                                                                                          | `'pixel' => 8`                                           | `setPixelate(int $pixelate)`                                                                                                                                |
-| `filt`          | `filter`            | `grayscale` or `sepia`                                                                                                                                                                                                                                                                                           | `'filt' => 'grayscale'`                                  | `setFilter(string\|Filter $filter)`                                                                                                                         |
-| `mark`          | `watermarkPath`     | Watermark image path                                                                                                                                                                                                                                                                                             | `'mark' => '/watermark.png'`                             | `setWatermarkPath(string $watermarkPath)`                                                                                                                   |
-| `markorigin`    | `watermarkOrigin`   | Watermark origin name                                                                                                                                                                                                                                                                                            | `'markorigin' => 'default'`                              | `setWatermarkOrigin(string $watermarkOrigin)`                                                                                                               |
-| `markw`         | `watermarkWidth`    | Integer width or relative width string [^relative-values]                                                                                                                                                                                                                                                        | `'markw' => 120`                                         | `setWatermarkWidth(int\|string $watermarkWidth)`                                                                                                            |
-| `markh`         | `watermarkHeight`   | Integer height or relative height string [^relative-values]                                                                                                                                                                                                                                                                         | `'markh' => 80`                                          | `setWatermarkHeight(int\|string $watermarkHeight)`                                                                                                          |
-| `markfit`[^focal-point-crops] | `watermarkFit` | `contain`, `max`, `fill`, `fill-max`, `stretch`, `cover`, or `crop`; cover crop positions: `cover-top-left`, `cover-top`, `cover-top-right`, `cover-left`, `cover-center`, `cover-right`, `cover-bottom-left`, `cover-bottom`, or `cover-bottom-right`; or `[fit, cropPosition, focalPointX, focalPointY, zoom]` | `'markfit' => 'contain'` | `setWatermarkFit(string\|Fit $fit, null\|string\|CropPosition $cropPosition = null, ?int $focalPointX = null, ?int $focalPointY = null, ?int $zoom = null)` |
-| `markx`         | `watermarkXOffset`  | Integer offset or relative offset string [^relative-values]                                                                                                                                                                                                                                                                         | `'markx' => 20`                                          | `setWatermarkXOffset(int\|string $watermarkXOffset)`                                                                                                        |
-| `marky`         | `watermarkYOffset`  | Integer offset or relative offset string [^relative-values]                                                                                                                                                                                                                                                                         | `'marky' => 20`                                          | `setWatermarkYOffset(int\|string $watermarkYOffset)`                                                                                                        |
-| `markpad`       | `watermarkPadding`  | Integer padding or relative padding string [^relative-values]                                                                                                                                                                                                                                                                       | `'markpad' => 16`                                        | `setWatermarkPadding(int\|string $watermarkPadding)`                                                                                                        |
-| `markpos`       | `watermarkPosition` | `top-left`, `top`, `top-right`, `left`, `center`, `right`, `bottom-left`, `bottom`, or `bottom-right`                                                                                                                                                                                                            | `'markpos' => 'bottom-right'`                            | `setWatermarkPosition(string\|WatermarkPosition $watermarkPosition)`                                                                                        |
-| `markalpha`     | `watermarkAlpha`    | Integer alpha                                                                                                                                                                                                                                                                                                    | `'markalpha' => 80`                                      | `setWatermarkAlpha(int $watermarkAlpha)`                                                                                                                    |
-| `bg`            | `background`        | Background color string                                                                                                                                                                                                                                                                                          | `'bg' => 'ffffff'`                                       | `setBackground(string $background)`                                                                                                                         |
-| `border`        | `border`            | `[width, color, method]`, where method is `overlay`, `shrink`, or `pad`                                                                                                                                                                                                                                          | `'border' => [8, 'ffffff', 'pad']`                       | `setBorder(int\|string $width, string $color, string\|BorderMethod $borderMethod)`                                                                          |
-| `q`             | `quality`           | Integer quality                                                                                                                                                                                                                                                                                                  | `'q' => 80`                                              | `setQuality(int $quality)`                                                                                                                                  |
-| `fm`[^format-selection] | `format`     | `jpg`, `pjpg`, `png`, `gif`, `webp`, `avif`, or `jxl`                                                                                                                                                                                                                                                            | `'fm' => 'gif'`                                          | `setFormat(string\|Format $format)`                                                                                                                         |
-| `interlace`     | `interlaced`        | Boolean                                                                                                                                                                                                                                                                                                          | `'interlace' => true`                                    | `setInterlaced(bool $interlaced)`                                                                                                                           |
+| Query parameter | Plugin option name | Accepted values | Example |
+| --- | --- | --- | --- |
+| `or` | `orientation` | `0`, `90`, `180`, `270`, or `auto` | `'or' => 'auto'` |
+| `flip` | `flip` | `v`, `h`, or `both` | `'flip' => 'h'` |
+| `crop` | `crop` | Named anchor, `face[,fallback]`, `facesarea[,fallback]`, or `[width, height, x, y]` | `'crop' => [400, 300, 10, 20]` |
+| `w` | `width` | Integer or decimal pixels, or relative dimensions | `'w' => '65p'` |
+| `h` | `height` | Integer or decimal pixels, or relative dimensions | `'h' => '50w'` |
+| `ar` | `aspectRatio` | `width:height`, decimal ratio, or `[dividend, divisor]` | `'ar' => '16:9'` |
+| `fit` | `fit` | `contain`, `max`, `fill`, `fill-max`, `stretch`, or `crop` | `'fit' => 'crop'` |
+| `dpr` | `devicePixelRatio` | Integer or decimal | `'dpr' => 1.5` |
+| `bri` | `brightness` | Integer brightness | `'bri' => 10` |
+| `con` | `contrast` | Integer contrast | `'con' => 15` |
+| `gam` | `gamma` | Float gamma | `'gam' => 1.2` |
+| `sharp` | `sharpen` | Integer sharpen amount | `'sharp' => 20` |
+| `blur` | `blur` | Integer blur amount | `'blur' => 5` |
+| `pixel` | `pixelate` | Integer pixelate amount | `'pixel' => 8` |
+| `filt` | `filter` | `grayscale` or `sepia` | `'filt' => 'grayscale'` |
+| `mark` | `watermarkPath` | Watermark image path | `'mark' => '/watermark.png'` |
+| `markorigin` | `watermarkOrigin` | Watermark origin name | `'markorigin' => 'default'` |
+| `markw` | `watermarkWidth` | Integer, decimal, or relative width | `'markw' => '20w'` |
+| `markh` | `watermarkHeight` | Integer, decimal, or relative height | `'markh' => '20h'` |
+| `markfit` | `watermarkFit` | `contain`, `max`, `fill`, `fill-max`, `stretch`, or `crop` | `'markfit' => 'contain'` |
+| `markpad` | `watermarkPadding` | Pixels, relative values, or `x:y` | `'markpad' => '10:20'` |
+| `markpos` | `watermarkPosition` | Named anchor, numeric coordinate, or pixel/relative `x:y` string | `'markpos' => '25p:50p'` |
+| `markalpha` | `watermarkAlpha` | Integer alpha | `'markalpha' => 80` |
+| `bg` | `background` | Background color | `'bg' => 'ffffff'` |
+| `border` | `border` | `[width, color, method]`; method is `overlay`, `shrink`, or `expand` | `'border' => [8, 'ffffff', 'expand']` |
+| `q` | `quality` | Integer quality | `'q' => 80` |
+| `fm` | `format` | `jpg`, `jpeg`, `pjpg`, `png`, `gif`, `webp`, `avif`, or `jxl` [^format-selection] | `'fm' => 'avif'` |
+| `interlace` | `interlaced` | Boolean | `'interlace' => true` |
+| `fp` | `focalPoint` | Pixels or relative x/y | `'fp' => '25w:75h'` |
+| `zoom` | `zoom` | Numeric, `face`, `facesarea`, optional numeric fallback | `'zoom' => 'face,2.5'` |
+| `zoompad` | `zoomPadding` | Pixels or relative x/y | `'zoompad' => '10:20'` |
+| `face` | `face` | One-based face index | `'face' => 1` |
+| `debug` | `debug` | Boolean | `'debug' => true` |
+| `passthrough` | `passthrough` | Boolean; false removes the flag unless `transformSvgs` is false | `'passthrough' => true` |
 
-[^format-selection]: **Format selection.** Unless you specifically need a format, omit `fm` or `format` from transforms. Small Pics uses the request's `Accept` header to choose the output format when one is present. If you set `fm` but the requested format is not accepted by the `Accept` header, Small Pics uses the header to choose the format instead. If neither a format nor an `Accept` header is present, it defaults to AVIF.
+Dimensions accept decimal pixels and `p`, `w`, or `h` units.[^relative-values] Paired values accept serialized `x:y` strings. The new focal-point and zoom-padding helpers also accept two arguments.
 
-[^relative-values]: **Relative values.** These let you define width or height values as a percentage of the base image. Use a percentage number (from 0 to 100) followed by `w` for width or `h` for height. For example, `5w` means 5% of the base image's width, and `35h` is 35% of the image's height.
+```twig
+{% set image = craft.smallpics.transformImage(asset, {
+    w: '65p', fit: 'crop', crop: 'face,top',
+    zoom: 'face,2.5', zoompad: '5p:10p'
+}) %}
+```
 
-[^focal-point-crops]: **Focal-point crops.** For `fit` or `markfit`, pass `null` as the crop position: `'fit' => ['crop', null, 50, 50]` or `'fit' => ['crop', null, 50, 50, 2]`.
+
+[^format-selection]: **Format selection.** Unless you specifically need a format, omit `fm` or `format` from transforms. Output defaults to AVIF. GIF inputs default to WebP, which supports animation.
+
+[^relative-values]: **Relative values.** Use a percentage from 0 to 100 followed by `w` for width, `h` for height, or `p` for the relevant axis. For example, `5w` means 5% of the base image's width, and `35h` means 35% of its height.
+
 
 ## PHP
 
@@ -423,12 +441,12 @@ $srcset = Plugin::$instance->transformer->srcset(
     [
         'w' => 400,
         'h' => 300,
-        'fit' => 'cover',
+        'fit' => 'crop',
     ]
 );
 
 $srcsetValue = (string) $srcset;
-// 'https://my-source.smallpics.io/bird.jpg?dpr=1&fit=cover-center&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=cover-center&h=300&w=400 2x'
+// 'https://my-source.smallpics.io/bird.jpg?dpr=1&fit=crop&h=300&w=400 1x, https://my-source.smallpics.io/bird.jpg?dpr=2&fit=crop&h=300&w=400 2x'
 ```
 
 ## Reference
@@ -445,16 +463,16 @@ use smallpics\craft\models\TransformedImage;
 $image = Plugin::$instance->transformer->transformImage($asset, [
     'w' => 800,
     'h' => 600,
-    'fit' => 'cover',
+    'fit' => 'crop',
 ]);
 
-$url = (string) $image; // 'https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=600&w=800'
-$url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=600&w=800'
+$url = (string) $image; // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800'
+$url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800'
 $width = $image->getWidth(); // 800
 $height = $image->getHeight(); // 600
 $mimeType = $image->getMimeType(); // 'image/jpeg'
 $sourceAsset = $image->getSource(); // The original Craft asset.
-$config = $image->getConfig(); // ['w' => 800, 'h' => 600, 'fit' => 'cover']
+$config = $image->getConfig(); // ['w' => 800, 'h' => 600, 'fit' => 'crop']
 $options = $image->getOptions(); // The Small Pics Options object.
 ```
 
@@ -478,18 +496,38 @@ $srcset = Plugin::$instance->transformer->srcset(
     ],
     [
         'h' => 300,
-        'fit' => 'cover',
+        'fit' => 'crop',
     ]
 );
 
 $srcsetValue = (string) $srcset;
-// 'https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=400 400w, https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=800 800w'
+// 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=400 400w, https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=800 800w'
 
 /** @var TransformedImage $smallImage */
 $smallImage = $srcset['400w']; // The transformed 400px-wide image.
-$smallImageUrl = (string) $smallImage; // 'https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=400'
+$smallImageUrl = (string) $smallImage; // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=400'
 
 foreach ($srcset as $descriptor => $image) {
-    $url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=cover-center&h=300&w=400' for '400w'.
+    $url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=300&w=400' for '400w'.
 }
+```
+
+### SVG passthrough
+
+`transformSvgs` defaults to `false`. When false, and the image is an SVG, Small Pics will proxy the SVG to the client without applying any transforms, so that it can be cached the same as other transformed images.
+
+This setting takes precedence over `passthrough: false` in transform parameters.
+
+```php
+// Source configuration (also supported at the root for a single source).
+'sources' => [
+    'default' => [
+        'baseUrl' => 'https://images.example.com',
+        'transformSvgs' => false, // Default: adds passthrough=1.
+    ],
+],
+```
+
+```twig
+{% set image = craft.smallpics.transformImage(asset, { width: 800, passthrough: true }) %}
 ```
