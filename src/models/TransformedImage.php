@@ -46,6 +46,10 @@ class TransformedImage implements Stringable
 
 	public function getMimeType(): string
 	{
+		if ($this->options->getPassthrough() && strtolower($this->asset->getExtension()) === 'svg') {
+			return 'image/svg+xml';
+		}
+
 		$format = $this->options->getFormat();
 
 		if (! $format instanceof Format) {
