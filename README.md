@@ -367,7 +367,7 @@ Use an array for options that accept multiple arguments:
 |-----------------|-----------------------|-------------------------------------------------------------------------------------|---------------------------------------|
 | `or`            | `orientation`         | `0`, `90`, `180`, `270`, or `auto`                                                  | `'or' => 'auto'`                      |
 | `flip`          | `flip`                | `v`, `h`, or `both`                                                                 | `'flip' => 'h'`                       |
-| `crop`          | `crop`                | Named anchor, `face[,fallback]`, `facesarea[,fallback]`, or `[width, height, x, y]` | `'crop' => [400, 300, 10, 20]`        |
+| `crop`          | `crop`                | Named anchor, `entropy`, `face[,fallback]`, `facesarea[,fallback]`, or `[width, height, x, y]` | `'crop' => [400, 300, 10, 20]`        |
 | `w`             | `width`               | Integer or decimal pixels, or relative dimensions                                   | `'w' => '65p'`                        |
 | `h`             | `height`              | Integer or decimal pixels, or relative dimensions                                   | `'h' => '50w'`                        |
 | `ar`            | `aspectRatio`         | `width:height`, decimal ratio, or `[dividend, divisor]`                             | `'ar' => '16:9'`                      |
