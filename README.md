@@ -392,6 +392,13 @@ Use an array for options that accept multiple arguments:
 | `markalpha`     | `watermarkAlpha`      | Integer alpha                                                                       | `'markalpha' => 80`                   |
 | `bg`            | `background`          | Background color                                                                    | `'bg' => 'ffffff'`                    |
 | `border`        | `border`              | `[width, color, method]`; method is `overlay`, `shrink`, or `expand`                | `'border' => [8, 'ffffff', 'expand']` |
+| `trim` | `trim` | `auto`, `color`, `alpha`, or `either` | `'trim' => 'color'` |
+| `trim-color` | `trimColor` | Color to remove | `'trim-color' => 'ffffff'` |
+| `trim-alpha` | `trimAlpha` | Alpha threshold, 0 to 255 | `'trim-alpha' => 8` |
+| `trim-tol` | `trimTolerance` | Tolerance, 0 to 255 | `'trim-tol' => 8` |
+| `trim-pad` | `trimPadding` | Source pixels retained around the crop | `'trim-pad' => 8` |
+| `trim-md` | `trimMeanDifference` | Auto mean difference, 0 to 255 | `'trim-md' => 8` |
+| `trim-sd` | `trimStandardDeviation` | Auto standard deviation, 0 to 255 | `'trim-sd' => 8` |
 | `q`             | `quality`             | Integer quality                                                                     | `'q' => 80`                           |
 | `fm`            | `format`              | `jpg`, `jpeg`, `pjpg`, `png`, `gif`, `webp`, `avif`, or `jxl` [^format-selection]   | `'fm' => 'avif'`                      |
 | `interlace`     | `interlaced`          | Boolean                                                                             | `'interlace' => true`                 |
