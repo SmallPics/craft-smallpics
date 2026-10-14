@@ -400,7 +400,7 @@ Use an array for options that accept multiple arguments:
 | `trim-md` | `trimMeanDifference` | Auto mean difference, 0 to 255 | `'trim-md' => 8` |
 | `trim-sd` | `trimStandardDeviation` | Auto standard deviation, 0 to 255 | `'trim-sd' => 8` |
 | `q`             | `quality`             | Integer quality                                                                     | `'q' => 80`                           |
-| `fm`            | `format`              | `jpg`, `jpeg`, `pjpg`, `png`, `gif`, `webp`, `avif`, or `jxl` [^format-selection]   | `'fm' => 'avif'`                      |
+| `fm`            | `format`              | `strict`, `auto`, `jpg`, `jpeg`, `pjpg`, `png`, `gif`, `webp`, `avif`, or `jxl` [^format-selection]   | `'fm' => 'avif'`                      |
 | `interlace`     | `interlaced`          | Boolean                                                                             | `'interlace' => true`                 |
 | `fp`            | `focalPoint`          | Pixels or relative x/y                                                              | `'fp' => '25w:75h'`                   |
 | `zoom`          | `zoom`                | Numeric, `face`, `facesarea`, optional numeric fallback                             | `'zoom' => 'face,2.5'`                |
@@ -418,7 +418,7 @@ Dimensions accept decimal pixels and `p`, `w`, or `h` units.[^relative-values] P
 }) %}
 ```
 
-[^format-selection]: **Format selection.** Unless you specifically need a format, omit `fm` or `format` from transforms. Output defaults to AVIF. GIF inputs default to WebP, which supports animation.
+[^format-selection]: **Format selection.** Omitting `fm` or `format` uses `strict`. With `fm=strict`, a missing or catch-all `Accept` header (`*/*` or `image/*`) preserves the source format. A specific `Accept` header selects the output format. `fm=auto` always selects a format from `Accept`, falling back to AVIF. GIF inputs use WebP in auto mode, which supports animation.
 
 [^relative-values]: **Relative values.** Use a percentage from 0 to 100 followed by `w` for width, `h` for height, or `p` for the relevant axis. For example, `5w` means 5% of the base image's width, and `35h` means 35% of its height.
 
