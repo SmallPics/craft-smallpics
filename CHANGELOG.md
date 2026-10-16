@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 - Unreleased
+## 2.0.0 - 2026-10-16
 
 > {warning} This update contains breaking changes. Read the [upgrade guide](https://github.com/SmallPics/craft-smallpics/blob/main/migrating-v1-v2.md) before updating.
 
