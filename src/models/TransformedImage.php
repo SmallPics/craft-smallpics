@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace smallpics\craft\models;
 
 use craft\elements\Asset;
-use smallpics\smallpics\enums\Format;
+use craft\models\ImageTransform;
 use smallpics\smallpics\Options;
 use Stringable;
 
@@ -21,6 +21,7 @@ class TransformedImage implements Stringable
 		private readonly Asset $asset,
 		private readonly Options $options,
 		private readonly array $config = [],
+		private readonly bool $sourcePassthrough = false,
 	) {
 	}
 
@@ -46,26 +47,25 @@ class TransformedImage implements Stringable
 
 	public function getMimeType(): string
 	{
-		if ($this->options->getPassthrough() && strtolower($this->asset->getExtension()) === 'svg') {
+		if (
+			$this->options->getPassthrough()
+			&& strtolower($this->asset->getExtension()) === 'svg'
+		) {
 			return 'image/svg+xml';
 		}
 
-		$format = $this->options->getFormat();
+		$format = $this->sourcePassthrough
+			? strtolower($this->asset->getExtension())
+			: $this->options->getFormat()?->value;
 
-		if (! $format instanceof Format) {
-			// Small Pics transformer will also use the Accept header to determine a response format, but
-			// this plugin will never see what the actual response format is, so this is based on the Small
-			// Pics default response format.
-			return self::DEFAULT_MIME_TYPE;
-		}
-
-		return match ($format->value) {
+		return match ($format) {
 			'jpg', 'pjpg' => 'image/jpeg',
 			'png' => 'image/png',
 			'gif' => 'image/gif',
 			'webp' => 'image/webp',
 			'jxl' => 'image/jxl',
-			default => self::DEFAULT_MIME_TYPE,
+			'avif' => 'image/avif',
+			default => '',
 		};
 	}
 
@@ -89,9 +89,21 @@ class TransformedImage implements Stringable
 
 	private function dimension(int|float|string|null $value, string $axis): int
 	{
-		if (is_string($value) && preg_match('/^([\d.]+)([pwh])$/', $value, $matches)) {
-			$width = $matches[2] === 'w' || ($matches[2] === 'p' && $axis === 'width');
-			$base = $width ? $this->asset->getWidth() : $this->asset->getHeight();
+		if (
+			is_string($value)
+			&& preg_match('/^([\d.]+)([pwh])$/', $value, $matches)
+		) {
+			$width = $matches[2] === 'w'
+				|| ($matches[2] === 'p' && $axis === 'width');
+
+			$sourceTransform = new ImageTransform([
+				'upscale' => false,
+			]);
+
+			$base = $width
+				? $this->asset->getWidth($sourceTransform)
+				: $this->asset->getHeight($sourceTransform);
+
 			return (int) round((float) $matches[1] * ($base ?? 0) / 100);
 		}
 

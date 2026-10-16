@@ -49,8 +49,17 @@ class Transformer extends Component
 
 		$sourceUrl = $this->sourceUrl($image);
 
-		if (FileHelper::isAnimatedGif($image) && ! $source->transformAnimatedGifs) {
-			return new TransformedImage($sourceUrl, $image, $options, $config);
+		if (
+			! $source->transformAnimatedGifs
+			&& FileHelper::isAnimatedGif($image)
+		) {
+			return new TransformedImage(
+				$sourceUrl,
+				$image,
+				$options,
+				$config,
+				sourcePassthrough: true,
+			);
 		}
 
 		if ($source->baseUrl === null || $source->baseUrl === '') {

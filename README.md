@@ -462,6 +462,8 @@ $srcsetValue = (string) $srcset;
 
 `transformImage()` returns a `smallpics\craft\models\TransformedImage`.
 
+`getMimeType()` returns an empty string when the output format depends on the image request's `Accept` header, for example when using `fm=strict` or `fm=auto`. Set an explicit format for a known MIME type.
+
 ```php
 use smallpics\craft\Plugin;
 use smallpics\craft\models\TransformedImage;
@@ -471,15 +473,16 @@ $image = Plugin::$instance->transformer->transformImage($asset, [
     'w' => 800,
     'h' => 600,
     'fit' => 'crop',
+    'fm' => 'jpg',
 ]);
 
-$url = (string) $image; // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800'
-$url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800'
+$url = (string) $image; // 'https://my-source.smallpics.io/bird.jpg?fit=crop&fm=jpg&h=600&w=800'
+$url = $image->getUrl(); // 'https://my-source.smallpics.io/bird.jpg?fit=crop&fm=jpg&h=600&w=800'
 $width = $image->getWidth(); // 800
 $height = $image->getHeight(); // 600
 $mimeType = $image->getMimeType(); // 'image/jpeg'
 $sourceAsset = $image->getSource(); // The original Craft asset.
-$config = $image->getConfig(); // ['w' => 800, 'h' => 600, 'fit' => 'crop']
+$config = $image->getConfig(); // ['w' => 800, 'h' => 600, 'fit' => 'crop', 'fm' => 'jpg']
 $options = $image->getOptions(); // The Small Pics Options object.
 ```
 
