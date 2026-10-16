@@ -42,9 +42,7 @@ class SourceConfig extends Model
 	 */
 	public function __construct(array $config = [])
 	{
-		if (! isset($config['defaultParams'])) {
-			$config['defaultParams'] = [];
-		}
+		$config['defaultParams'] ??= [];
 
 		parent::__construct($config);
 	}
