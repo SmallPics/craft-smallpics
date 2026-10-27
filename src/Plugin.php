@@ -2,12 +2,15 @@
 
 namespace smallpics\craft;
 
+use craft\base\AssetPreviewHandlerInterface;
 use craft\base\Plugin as BasePlugin;
 use craft\elements\Asset;
+use craft\events\AssetPreviewEvent;
 use craft\events\DefineAssetThumbUrlEvent;
 use craft\events\DefineAssetUrlEvent;
 use craft\services\Assets;
 use craft\web\twig\variables\CraftVariable;
+use smallpics\craft\assetpreviews\Image as ImagePreview;
 use smallpics\craft\models\Settings;
 use smallpics\craft\services\Transformer;
 use smallpics\craft\variables\SmallPicsVariable;
@@ -78,6 +81,20 @@ class Plugin extends BasePlugin
 					'mode' => 'fit',
 					...$settings->thumbnailParams,
 				]);
+			}
+		);
+
+		Event::on(
+			Assets::class,
+			Assets::EVENT_REGISTER_PREVIEW_HANDLER,
+			static function (AssetPreviewEvent $event): void {
+				$settings = self::settings();
+
+				if (! $settings->transformThumbnails || $settings->sources === [] || $event->previewHandler instanceof AssetPreviewHandlerInterface || $event->asset->kind !== Asset::KIND_IMAGE) {
+					return;
+				}
+
+				$event->previewHandler = new ImagePreview($event->asset);
 			}
 		);
 	}
