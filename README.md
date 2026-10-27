@@ -38,8 +38,8 @@ A source `baseUrl` is required.
 | Parameter | Type | Required | Default | Description                                                                                                                    |
 |-----------|------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------|
 | `transformNativeImages` | Boolean | No | `true` | Use Small Pics for Craft's native image transforms.                                                                            |
-| `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs.                                                                                       |
-| `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails after global and source defaults.                                                   |
+| `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs and asset preview images.                                                              |
+| `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails and asset previews after global and source defaults.                                |
 | `nativeTransformsParams` | Array | No | `[]` | Transform parameters applied to native Craft transforms after global and source defaults.                                      |
 | `defaultSource` | String | No | `'default'` | Source to use when a transform does not specify one. If omitted when `sources` is set, the first source is the default.        |
 | `baseUrl` | String | Yes | _None_ | Small Pics base URL for the default single source. **Required when `sources` is empty.**                                       |
@@ -124,7 +124,7 @@ Later values override earlier values.
 
 - Direct calls: global `defaultParams`, source `defaultParams`, then the params passed to `transformImage()` or `srcset()`.
 - Native Craft transforms: global `defaultParams`, source `defaultParams`, the Craft transform config, then `nativeTransformsParams`.
-- Thumbnails: global `defaultParams`, source `defaultParams`, the generated thumbnail dimensions and mode, then `thumbnailParams`.
+- Thumbnails and asset previews: global `defaultParams`, source `defaultParams`, the generated dimensions and mode, then `thumbnailParams`.
 
 ## Native Craft Transforms
 
@@ -150,7 +150,7 @@ Native transforms are any transform applied to images automatically by Craft, or
 {{ asset.getSrcset(['400w', '800w'], { width: 800 }) }}
 ```
 
-Image thumbnails can also be handled automatically when `transformThumbnails` is enabled. Use `thumbnailParams` to override your Small Pics global defaults specifically for thumbnails.
+With `transformThumbnails` enabled, thumbnails and asset previews (up to 2560px) use Small Pics. Override their params with `thumbnailParams`.
 
 ```php
 return [
