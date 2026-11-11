@@ -175,6 +175,18 @@ Craft transform keys are translated to Small Pics keys when native transforms ar
 | `position` | named anchor in `crop` |
 | `fill`     | `bg`                    |
 
+## Focal Points
+
+For crop transforms, the plugin sends the asset's focal point as `fp`. The focal point overrides `position`, matching Craft's own crop transforms. Params that set `crop` or `fp`, including `defaultParams`, keep their own value. For an asset without a focal point, `position` sets the crop anchor, and the default is center.
+
+```twig
+{# Crops around the asset's focal point #}
+{{ craft.smallpics.transformImage(asset, { w: 800, h: 600, fit: 'crop' }) }}
+
+{# Crops from the center #}
+{{ craft.smallpics.transformImage(asset, { w: 800, h: 600, fit: 'crop', crop: 'center' }) }}
+```
+
 ## Twig
 
 ### Transform an Image
@@ -225,8 +237,10 @@ You can also pass a named Craft transform handle as the config.
 Renders:
 
 ```html
-<img src="https://my-source.smallpics.io/bird.jpg?fit=crop&h=600&w=800">
+<img src="https://my-source.smallpics.io/bird.jpg?crop=center&fit=crop&h=600&w=800">
 ```
+
+For an asset with a focal point, the URL has `fp` in place of `crop`.
 
 #### Select a Source
 
