@@ -3,6 +3,7 @@
 namespace smallpics\craft\models;
 
 use craft\base\Model;
+use craft\elements\Asset;
 
 class Settings extends Model
 {
@@ -38,6 +39,13 @@ class Settings extends Model
 	 * @var array<string, mixed>
 	 */
 	public array $nativeTransformsParams = [];
+
+	/**
+	 * Volume handles. The plugin skips native transforms, thumbnails and asset previews for assets in these volumes.
+	 *
+	 * @var string[]
+	 */
+	public array $excludedVolumes = [];
 
 	/**
 	 * Name of the fallback source.
@@ -134,5 +142,10 @@ class Settings extends Model
 		$values['sources'] = $sources;
 
 		parent::setAttributes($values, $safeOnly);
+	}
+
+	public function excludesAsset(Asset $asset): bool
+	{
+		return in_array($asset->getVolume()->handle, $this->excludedVolumes, true);
 	}
 }

@@ -41,6 +41,7 @@ Each source needs a `baseUrl`.
 | `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs and asset preview images.                                                              |
 | `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails and asset previews after global and source defaults.                                |
 | `nativeTransformsParams` | Array | No | `[]` | Transform parameters applied to native Craft transforms after global and source defaults.                                      |
+| `excludedVolumes` | Array | No | `[]` | Volume handles. The plugin skips native transforms, thumbnails and asset previews for assets in these volumes. `transformImage()` and `srcset()` ignore this setting. Use it for volumes that no Small Pics source fetches from. |
 | `defaultSource` | String | No | First source | Fallback source. See [Multiple Sources](#multiple-sources). |
 | `baseUrl` | String | Yes | _None_ | Small Pics base URL for the default single source. **Required when `sources` is empty.**                                       |
 | `secret` | String or `null` | No | `null` | Signing secret for the default single source. **Required if your Small Pics image source has signed requests turned on.** |

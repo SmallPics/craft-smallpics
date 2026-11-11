@@ -53,7 +53,7 @@ class Plugin extends BasePlugin
 					return;
 				}
 
-				if (! $event->sender instanceof Asset || $event->sender->kind !== Asset::KIND_IMAGE) {
+				if (! $event->sender instanceof Asset || $event->sender->kind !== Asset::KIND_IMAGE || $settings->excludesAsset($event->sender)) {
 					return;
 				}
 
@@ -71,7 +71,7 @@ class Plugin extends BasePlugin
 			function (DefineAssetThumbUrlEvent $event): void {
 				$settings = self::settings();
 
-				if (! $settings->transformThumbnails || $settings->sources === [] || $event->url !== null || $event->asset->kind !== Asset::KIND_IMAGE) {
+				if (! $settings->transformThumbnails || $settings->sources === [] || $event->url !== null || $event->asset->kind !== Asset::KIND_IMAGE || $settings->excludesAsset($event->asset)) {
 					return;
 				}
 
@@ -90,7 +90,7 @@ class Plugin extends BasePlugin
 			static function (AssetPreviewEvent $event): void {
 				$settings = self::settings();
 
-				if (! $settings->transformThumbnails || $settings->sources === [] || $event->previewHandler instanceof AssetPreviewHandlerInterface || $event->asset->kind !== Asset::KIND_IMAGE) {
+				if (! $settings->transformThumbnails || $settings->sources === [] || $event->previewHandler instanceof AssetPreviewHandlerInterface || $event->asset->kind !== Asset::KIND_IMAGE || $settings->excludesAsset($event->asset)) {
 					return;
 				}
 
