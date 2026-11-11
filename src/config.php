@@ -7,6 +7,7 @@ return [
 	// 'transformThumbnails' => true,
 	// 'thumbnailParams' => [],
 	// 'nativeTransformsParams' => [],
+	// 'excludedVolumes' => [],
 	// 'defaultSource' => 'default',
 	'baseUrl' => getenv('SMALLPICS_BASE_URL'),
 	'secret' => getenv('SMALLPICS_SECRET') ?: null,
