@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 - 2026-11-11
+
+- Crop transforms use the asset's focal point in place of `position`, unless the params set `crop` or `fp`
+
 ## 2.1.0 - 2026-10-27
 
 - Serve control panel asset previews from Small Pics at up to 2560px

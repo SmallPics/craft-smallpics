@@ -42,7 +42,7 @@ class Transformer extends Component
 	{
 		$config = $this->normalizeTransformConfig($config);
 		[$source, $config] = $this->resolveSource($config);
-		$options = $this->createOptions($source, $config);
+		$options = $this->createOptions($image, $source, $config);
 		if (! $source->transformSvgs) {
 			$options->setPassthrough(true);
 		}
@@ -179,7 +179,7 @@ class Transformer extends Component
 	/**
 	 * @param array<string, mixed> $config
 	 */
-	private function createOptions(SourceConfig $source, array $config): Options
+	private function createOptions(Asset $image, SourceConfig $source, array $config): Options
 	{
 		$config = [
 			...$this->normalizeOptionKeys(Plugin::settings()->defaultParams),
@@ -187,7 +187,7 @@ class Transformer extends Component
 			...$this->normalizeOptionKeys($config),
 		];
 
-		$config = $this->normalizeSmallPicsConfig($this->normalizeOptionKeys($config));
+		$config = $this->normalizeSmallPicsConfig($image, $config);
 
 		$optionsConfig = [];
 
@@ -203,7 +203,7 @@ class Transformer extends Component
 	 * @param array<string, mixed> $config
 	 * @return array<string, mixed>
 	 */
-	private function normalizeSmallPicsConfig(array $config): array
+	private function normalizeSmallPicsConfig(Asset $image, array $config): array
 	{
 		foreach (['width', 'height'] as $key) {
 			if (isset($config[$key])) {
@@ -219,8 +219,16 @@ class Transformer extends Component
 			$config['quality'] = (int) $config['quality'];
 		}
 
-		if (in_array($config['fit'] ?? null, ['crop', Fit::CROP], true) && ! isset($config['crop']) && is_string($config['position'] ?? null)) {
-			$config['crop'] = self::NATIVE_POSITION_MAP[$config['position']] ?? $config['position'];
+		if (in_array($config['fit'] ?? null, ['crop', Fit::CROP], true) && ! isset($config['crop'])) {
+			$focalPoint = $image->getHasFocalPoint() ? $image->getFocalPoint() : null;
+
+			// Ignore position, since Craft transforms always set it to center-center
+			if (! isset($config['focalPoint']) && is_array($focalPoint)) {
+				// Send percentages as `p`, since the server rejects decimal `w` and `h` values
+				$config['focalPoint'] = sprintf('%sp:%sp', $focalPoint['x'] * 100, $focalPoint['y'] * 100);
+			} elseif (is_string($config['position'] ?? null)) {
+				$config['crop'] = self::NATIVE_POSITION_MAP[$config['position']] ?? $config['position'];
+			}
 		}
 
 		if (isset($config['fill']) && ! isset($config['background'])) {
