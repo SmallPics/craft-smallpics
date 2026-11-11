@@ -38,6 +38,13 @@ class SourceConfig extends Model
 	public array $defaultParams = [];
 
 	/**
+	 * Volume handles. Assets in these volumes use this source.
+	 *
+	 * @var string[]
+	 */
+	public array $volumes = [];
+
+	/**
 	 * @param array<array-key, mixed> $config
 	 */
 	public function __construct(array $config = [])

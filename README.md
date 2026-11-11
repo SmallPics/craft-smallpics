@@ -31,7 +31,7 @@ ddev craft plugin/install smallpics
 
 Create `config/smallpics.php` in the root of your project, or copy and rename [config.php](src/config.php).
 
-A source `baseUrl` is required.
+Each source needs a `baseUrl`.
 
 ### Configuration parameters
 
@@ -41,9 +41,9 @@ A source `baseUrl` is required.
 | `transformThumbnails` | Boolean | No | `true` | Use Small Pics for Craft thumbnail URLs and asset preview images.                                                              |
 | `thumbnailParams` | Array | No | `[]` | Transform parameters applied to thumbnails and asset previews after global and source defaults.                                |
 | `nativeTransformsParams` | Array | No | `[]` | Transform parameters applied to native Craft transforms after global and source defaults.                                      |
-| `defaultSource` | String | No | `'default'` | Source to use when a transform does not specify one. If omitted when `sources` is set, the first source is the default.        |
+| `defaultSource` | String | No | First source | Fallback source. See [Multiple Sources](#multiple-sources). |
 | `baseUrl` | String | Yes | _None_ | Small Pics base URL for the default single source. **Required when `sources` is empty.**                                       |
-| `secret` | String or `null` | No | `null` | Signing secret for the default single source. **Required if signed requests are enabled for your image source in Small Pics.** |
+| `secret` | String or `null` | No | `null` | Signing secret for the default single source. **Required if your Small Pics image source has signed requests turned on.** |
 | `transformSvgs` | Boolean | No | `false` | Transform SVGs for the default single source.                                                                                  |
 | `transformAnimatedGifs` | Boolean | No | `true` | Transform animated GIFs for the default single source.                                                                         |
 | `sources` | Array | No | `[]` | See [Source configuration](#source-configuration).                                                                             |
@@ -54,10 +54,11 @@ A source `baseUrl` is required.
 | Parameter | Type | Required | Default | Description                                                                                                  |
 |-----------|------|----------|---------|--------------------------------------------------------------------------------------------------------------|
 | `baseUrl` | String | Yes | _None_ | Small Pics base URL for this source. |
-| `secret` | String or `null` | No | `null` | Signing secret for this source. Required if signed requests are enabled for your image source in Small Pics. |
+| `secret` | String or `null` | No | `null` | Signing secret for this source. Required if your Small Pics image source has signed requests turned on. |
 | `transformSvgs` | Boolean | No | `false` | Transform SVGs for this source. |
 | `transformAnimatedGifs` | Boolean | No | `true` | Transform animated GIFs for this source. |
 | `defaultParams` | Array | No | `[]` | Transform parameters applied after global defaults and before per-transform parameters.                      |
+| `volumes` | Array | No | `[]` | Volume handles. Assets in these volumes use this source. |
 
 ### Single Source
 
@@ -83,9 +84,9 @@ return [
 
 ### Multiple Sources
 
-Use source labels to select the source setup for an image. The label is only used by the plugin and is not added to generated URLs.
+Assets in a source's `volumes` use that source. Other assets use `defaultSource`. If two sources list the same volume, the plugin uses the first.
 
-See an example of selecting a source in the [Twig section](#select-a-source) below.
+To pick a source for one transform, pass its label as `source`, which overrides both. The label is not added to generated URLs. For an example, see [Select a Source](#select-a-source).
 
 ```php
 return [
@@ -113,6 +114,7 @@ return [
             'secret' => getenv('SMALLPICS_EDITORIAL_SECRET') ?: null,
             'transformSvgs' => false,
             'transformAnimatedGifs' => false,
+            'volumes' => ['editorial'],
         ],
     ],
 ];
@@ -128,7 +130,7 @@ Later values override earlier values.
 
 ## Native Craft Transforms
 
-Native Craft image transforms are handled automatically when `transformNativeImages` is enabled. Use `nativeTransformsParams` to set Small Pics params specifically for native transforms.
+When `transformNativeImages` is on, the plugin handles Craft's native image transforms. Use `nativeTransformsParams` to set Small Pics params for native transforms only.
 
 For example, to give all native transforms a lower quality than the default:
 
@@ -164,7 +166,7 @@ return [
 
 ### Native Transform Key Mapping
 
-Craft transform keys are translated to Small Pics keys when native transforms are intercepted:
+For native transforms, the plugin maps Craft transform keys to Small Pics keys:
 
 | Craft key  | Small Pics param        |
 |------------|-------------------------|
@@ -172,12 +174,12 @@ Craft transform keys are translated to Small Pics keys when native transforms ar
 | `height`   | `h`                     |
 | `quality`  | `q`                     |
 | `mode`     | `fit`                   |
-| `position` | named anchor in `crop` |
+| `position` | named anchor in `crop`, or `fp` (see [Focal Points](#focal-points)) |
 | `fill`     | `bg`                    |
 
 ## Focal Points
 
-For crop transforms, the plugin sends the asset's focal point as `fp`. The focal point overrides `position`, matching Craft's own crop transforms. Params that set `crop` or `fp`, including `defaultParams`, keep their own value. For an asset without a focal point, `position` sets the crop anchor, and the default is center.
+For crop transforms, the plugin sends the asset's focal point as `fp` in place of `position`, matching Craft. To override the focal point, set `crop` or `fp` in the params. Without a focal point, the crop uses `position`, or the center when `position` is not set.
 
 ```twig
 {# Crops around the asset's focal point #}
@@ -191,7 +193,7 @@ For crop transforms, the plugin sends the asset's focal point as `fp`. The focal
 
 ### Transform an Image
 
-`transformImage()` returns a `TransformedImage`. The image URL can be retrieved by either calling `getUrl()` or simply rendering the image instance as a string.
+`transformImage()` returns a `TransformedImage`. Get its URL with `getUrl()`, or render the image as a string.
 
 ```twig
 {% set image = craft.smallpics.transformImage(asset, {
@@ -343,14 +345,13 @@ Renders:
 
 #### Access Srcset Images
 
-The `srcset` result can be accessed like an array. Use the same descriptor keys
-you passed to `srcset()`, such as `800w`, `1x`, or `2x`. Each item is a
-`TransformedImage`, so it can be cast to a string or used via `getUrl()` when you
-only need the URL.
+Access the `srcset` result like an array. Use the descriptor keys you passed to
+`srcset()`, such as `800w`, `1x`, or `2x`. Each item is a `TransformedImage`. Cast
+it to a string or call `getUrl()` to get the URL.
 
 ## Transform Options
 
-All the transform options supported by the Small Pics transform API are supported by this plugin. Take a look at the [Small Pics docs](https://www.smallpics.io/docs/) for more detailed information about each parameter.
+The plugin supports every option in the Small Pics transform API. See the [Small Pics docs](https://www.smallpics.io/docs/) for each parameter. Try them on an image in the [Small Pics playground](https://www.smallpics.io/playground/).
 
 Transform options can use either the Small Pics URL param key or the option name used by `smallpics/smallpics-php:^2.0.0`. For example, `q` and `quality` are equivalent.
 
@@ -538,7 +539,7 @@ foreach ($srcset as $descriptor => $image) {
 
 ### SVG passthrough
 
-`transformSvgs` defaults to `false`. When false, and the image is an SVG, Small Pics will proxy the SVG to the client without applying any transforms, so that it can be cached the same as other transformed images.
+`transformSvgs` defaults to `false`. With it off, Small Pics returns SVGs without transforms. The response is cacheable like other transformed images.
 
 This setting takes precedence over `passthrough: false` in transform parameters.
 

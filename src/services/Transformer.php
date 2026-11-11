@@ -41,7 +41,7 @@ class Transformer extends Component
 	public function transformImage(Asset $image, array|string|ImageTransform $config = []): TransformedImage
 	{
 		$config = $this->normalizeTransformConfig($config);
-		[$source, $config] = $this->resolveSource($config);
+		[$source, $config] = $this->resolveSource($image, $config);
 		$options = $this->createOptions($image, $source, $config);
 		if (! $source->transformSvgs) {
 			$options->setPassthrough(true);
@@ -148,10 +148,18 @@ class Transformer extends Component
 	 * @param array<string, mixed> $config
 	 * @return array{SourceConfig, array<string, mixed>}
 	 */
-	private function resolveSource(array $config): array
+	private function resolveSource(Asset $image, array $config): array
 	{
 		$settings = Plugin::settings();
 		$sourceName = $settings->defaultSource;
+		$volumeHandle = $image->getVolume()->handle;
+
+		foreach ($settings->sources as $name => $source) {
+			if (in_array($volumeHandle, $source->volumes, true)) {
+				$sourceName = $name;
+				break;
+			}
+		}
 
 		if (isset($config['source']) && is_scalar($config['source'])) {
 			$sourceName = (string) $config['source'];

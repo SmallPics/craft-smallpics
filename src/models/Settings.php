@@ -40,7 +40,7 @@ class Settings extends Model
 	public array $nativeTransformsParams = [];
 
 	/**
-	 * Name of the default source to use when none is specified.
+	 * Name of the fallback source.
 	 */
 	public string $defaultSource = self::DEFAULT_SOURCE_NAME;
 
@@ -83,6 +83,7 @@ class Settings extends Model
 	 *         'defaultParams' => ['format' => 'avif'],
 	 *         'transformSvgs' => false,
 	 *         'transformAnimatedGifs' => false,
+	 *         'volumes' => ['spacesImages'],
 	 *     ],
 	 * ]
 	 *
